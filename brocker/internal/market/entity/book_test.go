@@ -187,7 +187,7 @@ func TestBuyWithDifferentPrice(t *testing.T) {
 	assert.Equal(3, investor2.GetAssetPosition("asset1").Shares, "Investor 2 should have 3 shares of asset 1")
 
 	wg.Add(1)
-	order3 := NewOrder("3", investor3, asset1, 4.5, 3, "SELL")
+	order3 := NewOrder("3", investor3, asset1, 3, 4.5, "SELL")
 	orderChan <- order3
 
 	wg.Wait()
