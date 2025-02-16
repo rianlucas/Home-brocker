@@ -3,6 +3,7 @@ module home-brocker
 go 1.23.6
 
 require (
+	github.com/confluentinc/confluent-kafka-go/v2 v2.8.0
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.10.0
 )
