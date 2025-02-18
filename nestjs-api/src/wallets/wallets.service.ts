@@ -40,11 +40,13 @@ export class WalletsService {
 
     try {
       const docs = await this.walletAssetSchema.create(
-        {
-          wallet: data.walletId,
-          asset: data.assetId,
-          shares: data.shares,
-        },
+        [
+          {
+            wallet: data.walletId,
+            asset: data.assetId,
+            shares: data.shares,
+          },
+        ],
         { session },
       );
 
@@ -62,6 +64,7 @@ export class WalletsService {
     } catch (error) {
       console.error(error);
       await session.abortTransaction();
+      throw error;
     } finally {
       session.endSession();
     }
