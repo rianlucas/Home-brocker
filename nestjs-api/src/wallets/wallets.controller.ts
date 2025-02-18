@@ -23,7 +23,7 @@ export class WalletsController {
 
   @Post(':id/assets')
   createWalletAsset(@Param('id') id: string, @Body() data) {
-    return this.walletsService.createWalletasset({
+    return this.walletsService.createWalletAsset({
       walletId: id,
       assetId: data.assetId,
       shares: data.shares,
