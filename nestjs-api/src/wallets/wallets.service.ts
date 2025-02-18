@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Wallet } from './entities/wallet.entity';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { WalletAsset } from './entities/wallet-asset.entity';
 
 @Injectable()
@@ -11,6 +11,8 @@ export class WalletsService {
     @InjectModel(Wallet.name) private walletSchema: Model<Wallet>,
     @InjectModel(WalletAsset.name)
     private walletAssetSchema: Model<WalletAsset>,
+    @InjectConnection()
+    private connection: mongoose.Connection,
   ) {}
 
   create(createWalletDto: CreateWalletDto) {
@@ -22,18 +24,46 @@ export class WalletsService {
   }
 
   findOne(id: string) {
+    this.walletAssetSchema
+      .findOne({ wallet: id })
+      .populate(['asset', 'wallet']);
     return this.walletSchema.findById(id);
   }
 
-  createWalletasset(data: {
+  async createWalletasset(data: {
     walletId: string;
     assetId: string;
     shares: number;
   }) {
-    return this.walletAssetSchema.create({
-      wallet: data.walletId,
-      asset: data.assetId,
-      shares: data.shares,
-    });
+    const session = await this.connection.startSession();
+    await session.startTransaction();
+
+    try {
+      const docs = await this.walletAssetSchema.create(
+        {
+          wallet: data.walletId,
+          asset: data.assetId,
+          shares: data.shares,
+        },
+        { session },
+      );
+
+      const walletAsset = docs[0];
+      await this.walletAssetSchema.updateOne(
+        { _id: data.walletId },
+        {
+          $push: { assets: walletAsset._id },
+        },
+        { session },
+      );
+
+      await session.commitTransaction();
+      return walletAsset;
+    } catch (error) {
+      console.error(error);
+      await session.abortTransaction();
+    } finally {
+      session.endSession();
+    }
   }
 }

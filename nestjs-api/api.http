@@ -10,7 +10,7 @@ Content-Type: application/json
   "image": "amazon.png"
 }
 
-###
+### 
 @assetId = {{ createAsset.response.body._id }}
 GET http://localhost:3000/assets
 ###
