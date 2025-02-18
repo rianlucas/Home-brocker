@@ -20,4 +20,13 @@ export class WalletsController {
   findOne(@Param('id') id: string) {
     return this.walletsService.findOne(id);
   }
+
+  @Post(':id/assets')
+  createWalletAsset(@Param('id') id: string, @Body() data) {
+    return this.walletsService.createWalletasset({
+      walletId: id,
+      assetId: data.assetId,
+      shares: data.shares,
+    });
+  }
 }
